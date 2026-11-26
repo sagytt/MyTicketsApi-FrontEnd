@@ -124,7 +124,7 @@ function TicketList() {
     return (
         <div>
               {error && <p role="alert">Error: {error}</p>}
-            <h2>Support Tickets</h2>
+            <h2 className="section-title">Support Tickets</h2>
             <TicketForm onCreated={() => setRefreshKey((current) => current + 1)} />
             <div className="ticket-filters">
                 <input
@@ -132,6 +132,7 @@ function TicketList() {
                     placeholder="Search by title..."
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
+                    className="form-input"
                 />
 
                 <select
@@ -139,6 +140,7 @@ function TicketList() {
                     onChange={(event) =>
                         setStatus(event.target.value as TicketStatus | "")
                     }
+                    className="form-select"
                 >
                     <option value="">All Statuses</option>
                     <option value="Open">Open</option>
@@ -151,6 +153,7 @@ function TicketList() {
                     onChange={(event) =>
                         setPriority(event.target.value as TicketPriority | "")
                     }
+                    className="form-select"
                 >
                     <option value="">All Priorities</option>
                     <option value="High">High</option>
@@ -162,7 +165,8 @@ function TicketList() {
             {filteredTickets.length === 0 ? (
                 <p>No tickets found.</p>
             ) : (
-                <table>
+                <div className="table-container">
+                <table className="tickets-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -181,8 +185,17 @@ function TicketList() {
                                 <td>{ticket.id}</td>
                                 <td>{ticket.title}</td>
                                 <td>{ticket.description}</td>
-                                <td>{ticket.priority}</td>
-                                <td>{ticket.status}</td>
+                                <td>
+                                <span className={`priority-badge priority-${ticket.priority.toLowerCase()}`}>
+                                    {ticket.priority}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span className={`status-badge status-${ticket.status.toLowerCase()}`}>
+                                        {ticket.status === "InProgress" ? "In Progress" : ticket.status}
+                                    </span>
+                                </td>
                                 <td>
                                     {new Date(ticket.createdAt).toLocaleString()}
                                 </td>
@@ -191,6 +204,7 @@ function TicketList() {
                                         type="button"
                                         onClick={() => handleStatusUpdate(ticket)}
                                         disabled={actionLoadingId !== null}
+                                        className="btn btn-primary"
                                     >
                                         {actionLoadingId === ticket.id
                                             ? "Updating..."
@@ -203,6 +217,7 @@ function TicketList() {
                                         type="button"
                                         onClick={() => handleDelete(ticket)}
                                         disabled={actionLoadingId !== null}
+                                        className="btn btn-danger"
                                     >
                                         {actionLoadingId === ticket.id
                                             ? "Processing..."
@@ -213,6 +228,7 @@ function TicketList() {
                         ))}
                     </tbody>
                 </table>
+                </div>
             )}
         </div>
     );

@@ -59,9 +59,9 @@ function TicketForm({ onCreated }: TicketFormProps) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <h2>Create New Ticket</h2>
+         <h2 className="card-title">Create New Ticket</h2>
 
-            <div>
+            <div className="form-field">
                 <label htmlFor="title">Title</label>
                 <input
                     id="title"
@@ -71,10 +71,11 @@ function TicketForm({ onCreated }: TicketFormProps) {
                     placeholder="Enter ticket title"
                     required
                     maxLength={150}
+                    className="form-input"
                 />
             </div>
 
-            <div>
+            <div className="form-field">
                 <label htmlFor="description">Description</label>
                 <textarea
                     id="description"
@@ -83,10 +84,11 @@ function TicketForm({ onCreated }: TicketFormProps) {
                     placeholder="Describe the issue"
                     required
                     maxLength={2000}
+                    className="form-textarea"
                 />
             </div>
 
-            <div>
+            <div className="form-field">
                 <label htmlFor="priority">Priority</label>
                 <select
                     id="priority"
@@ -94,6 +96,7 @@ function TicketForm({ onCreated }: TicketFormProps) {
                     onChange={(event) =>
                         setPriority(event.target.value as TicketPriority)
                     }
+                    className="form-select"
                 >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -101,13 +104,15 @@ function TicketForm({ onCreated }: TicketFormProps) {
                 </select>
             </div>
 
-            {error && <p role="alert">{error}</p>}
+            {error && <p className="form-error" role="alert">{error}</p>}
 
             {success && (
-                <p role="status">Ticket created successfully!</p>
+               <p className="form-success" role="status">
+               Ticket created successfully!
+                </p>
             )}
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading} className="btn btn-primary">
                 {loading ? "Creating..." : "Create Ticket"}
             </button>
         </form>
