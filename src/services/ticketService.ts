@@ -9,9 +9,15 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-async function request<T>(url: string, options?: RequestInit): Promise<T> {
+
+
+async function request<T>(
+    url: string,
+    options?: RequestInit
+): Promise<T> {
     const response = await fetch(`${API_BASE_URL}${url}`, {
         ...options,
+        cache: "no-store",
         headers: {
             "Content-Type": "application/json",
             ...options?.headers
@@ -35,11 +41,17 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
         throw new Error(message);
     }
 
-    if (response.status === 204) {
+    if (response.status === 204 || response.status === 205) {
         return undefined as T;
     }
 
-    return response.json() as Promise<T>;
+    const responseBody = await response.text();
+
+    if (!responseBody.trim()) {
+        return undefined as T;
+    }
+
+    return JSON.parse(responseBody) as T;
 }
 
 export const ticketService = {

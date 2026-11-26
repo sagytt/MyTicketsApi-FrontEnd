@@ -19,6 +19,8 @@ function TicketList() {
 
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+
     useEffect(() => {
         let cancelled = false;
 
@@ -57,6 +59,59 @@ function TicketList() {
         };
     }, [status, priority, refreshKey]);
 
+
+    async function handleStatusUpdate(ticket: Ticket) {
+        const newStatus: TicketStatus =
+            ticket.status === "Closed" ? "Open" : "Closed";
+    
+        try {
+            setActionLoadingId(ticket.id);
+            setError(null);
+    
+            await ticketService.updateStatus(ticket.id, {
+                status: newStatus
+            });
+    
+            setRefreshKey((current) => current + 1);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to update ticket status."
+            );
+        } finally {
+            setActionLoadingId(null);
+        }
+    }
+    
+
+    async function handleDelete(ticket: Ticket) {
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${ticket.title}"?`
+        );
+    
+        if (!confirmed) {
+            return;
+        }
+    
+        try {
+            setActionLoadingId(ticket.id);
+            setError(null);
+    
+            await ticketService.delete(ticket.id);
+    
+            setRefreshKey((current) => current + 1);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to delete ticket."
+            );
+        } finally {
+            setActionLoadingId(null);
+        }
+    }
+    
     const filteredTickets = tickets.filter((ticket) =>
         ticket.title.toLowerCase().includes(search.toLowerCase())
     );
@@ -65,12 +120,10 @@ function TicketList() {
         return <p>Loading tickets...</p>;
     }
 
-    if (error) {
-        return <p role="alert">Error: {error}</p>;
-    }
 
     return (
         <div>
+              {error && <p role="alert">Error: {error}</p>}
             <h2>Support Tickets</h2>
             <TicketForm onCreated={() => setRefreshKey((current) => current + 1)} />
             <div className="ticket-filters">
@@ -118,6 +171,7 @@ function TicketList() {
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -131,6 +185,29 @@ function TicketList() {
                                 <td>{ticket.status}</td>
                                 <td>
                                     {new Date(ticket.createdAt).toLocaleString()}
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleStatusUpdate(ticket)}
+                                        disabled={actionLoadingId !== null}
+                                    >
+                                        {actionLoadingId === ticket.id
+                                            ? "Updating..."
+                                            : ticket.status === "Closed"
+                                                ? "Reopen"
+                                                : "Close"}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDelete(ticket)}
+                                        disabled={actionLoadingId !== null}
+                                    >
+                                        {actionLoadingId === ticket.id
+                                            ? "Processing..."
+                                            : "Delete"}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
