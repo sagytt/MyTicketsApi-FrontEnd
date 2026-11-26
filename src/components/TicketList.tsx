@@ -6,6 +6,7 @@ import type {
     TicketStatus,
     TicketPriority
 } from "../types/ticket";
+import TicketForm from "./TicketForm";
 
 function TicketList() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -15,6 +16,8 @@ function TicketList() {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState<TicketStatus | "">("");
     const [priority, setPriority] = useState<TicketPriority | "">("");
+
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -52,7 +55,7 @@ function TicketList() {
         return () => {
             cancelled = true;
         };
-    }, [status, priority]);
+    }, [status, priority, refreshKey]);
 
     const filteredTickets = tickets.filter((ticket) =>
         ticket.title.toLowerCase().includes(search.toLowerCase())
@@ -69,7 +72,7 @@ function TicketList() {
     return (
         <div>
             <h2>Support Tickets</h2>
-
+            <TicketForm onCreated={() => setRefreshKey((current) => current + 1)} />
             <div className="ticket-filters">
                 <input
                     type="text"
