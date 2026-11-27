@@ -60,18 +60,22 @@ function TicketList() {
     }, [status, priority, refreshKey]);
 
 
-    async function handleStatusUpdate(ticket: Ticket) {
-        const newStatus: TicketStatus =
-            ticket.status === "Closed" ? "Open" : "Closed";
-    
+    async function handleStatusUpdate(
+        ticket: Ticket,
+        newStatus: TicketStatus
+    ) {
+        if (ticket.status === newStatus) {
+            return;
+        }
+
         try {
             setActionLoadingId(ticket.id);
             setError(null);
-    
+
             await ticketService.updateStatus(ticket.id, {
                 status: newStatus
             });
-    
+
             setRefreshKey((current) => current + 1);
         } catch (err) {
             setError(
@@ -83,8 +87,8 @@ function TicketList() {
             setActionLoadingId(null);
         }
     }
-    
 
+    
     async function handleDelete(ticket: Ticket) {
         const confirmed = window.confirm(
             `Are you sure you want to delete "${ticket.title}"?`
@@ -117,7 +121,12 @@ function TicketList() {
     );
 
     if (loading) {
-        return <p>Loading tickets...</p>;
+        return (
+            <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Loading tickets...</p>
+            </div>
+        );
     }
 
 
@@ -199,19 +208,23 @@ function TicketList() {
                                 <td>
                                     {new Date(ticket.createdAt).toLocaleString()}
                                 </td>
+                        
                                 <td>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleStatusUpdate(ticket)}
+                                    <select
+                                        className="status-select"
+                                        value={ticket.status}
                                         disabled={actionLoadingId !== null}
-                                        className="btn btn-primary"
+                                        onChange={(event) => {
+                                            handleStatusUpdate(
+                                                ticket,
+                                                event.target.value as TicketStatus
+                                            );
+                                        }}
                                     >
-                                        {actionLoadingId === ticket.id
-                                            ? "Updating..."
-                                            : ticket.status === "Closed"
-                                                ? "Reopen"
-                                                : "Close"}
-                                    </button>
+                                        <option value="Open">Open</option>
+                                        <option value="InProgress">In Progress</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
 
                                     <button
                                         type="button"

@@ -67,7 +67,11 @@ function TicketForm({ onCreated }: TicketFormProps) {
                     id="title"
                     type="text"
                     value={title}
-                    onChange={(event) => setTitle(event.target.value)}
+                    onChange={(event) => {
+                        setTitle(event.target.value);
+                        setSuccess(false);
+                        setError(null);
+                    }}
                     placeholder="Enter ticket title"
                     required
                     maxLength={150}
